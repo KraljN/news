@@ -3,7 +3,6 @@ use App\Helper;
 ?>
 
 <div class="container mt-3">
-    <input type="hidden" id="rootPath" value="<?= Helper::route("") ?>">
 <form method="POST" action="<?= Helper::route("/admin/posts/store") ?>">
   <div class="row mb-3">
     <label for="title" class="col-sm-2 col-form-label">Title</label>

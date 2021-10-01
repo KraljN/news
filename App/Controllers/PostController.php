@@ -2,6 +2,7 @@
 namespace App\Controllers;
 
 use App\Helper;
+use App\Interfaces\IDataManipulate;
 use App\Mail\CategoryMail;
 use App\Mail\PostMail;
 use App\Validator;
@@ -9,7 +10,7 @@ use Exception;
 
 session_start();
 
-class PostController extends ContentController{
+class PostController extends ContentController implements IDataManipulate{
     
     public function index(){
         $where = isset($_GET["q"]) && !empty($_GET["q"]) ? $_GET["q"] : "";
@@ -31,54 +32,54 @@ class PostController extends ContentController{
     }
     public function update($id){
         $validator = new Validator();
-        if ($_SERVER['REQUEST_METHOD'] == 'PUT') //Kod preuzet sa interneta za PUT zahtev
+        if ($_SERVER['REQUEST_METHOD'] == 'PUT') //Zbog toga sto ne postoji $_PUT ili $_DELETE kao npr $_GET ili $_POST sa fronta sve spajamo u $_REQUEST
+        {
+            parse_str(file_get_contents("php://input"), $_PUT);
+
+            foreach ($_PUT as $key => $value)
             {
-                parse_str(file_get_contents("php://input"), $_PUT);
+                unset($_PUT[$key]);
 
-                foreach ($_PUT as $key => $value)
-                {
-                    unset($_PUT[$key]);
-
-                    $_PUT[str_replace('amp;', '', $key)] = $value;
-                }
-                $_REQUEST = array_merge($_REQUEST, $_PUT);
+                $data[str_replace('amp;', '', $key)] = $value;
             }
-            $data = $_REQUEST;
-            unset($data['id']);
-            $dataBefore = $this->post->getSinglePost($id);
-            $validator->checkDifference($data, $dataBefore);
-            $validator->validate($data);
-            if($validator->getValidity()){
-                try{
-                    $categoryIdBeforeUpdate = $this->post->getSinglePost($_REQUEST['id'])['category_id'];
-                    $this->post->updatePost($data, $_REQUEST['id']);
-                    $postAfterUpdate = $this->post->getSinglePost($_REQUEST['id']);
-                    $_SESSION['success'] = "You successfully updated this post!";
+            $_REQUEST = array_merge($_REQUEST, $_PUT);
+        }
+        $data = $_REQUEST;
+        unset($data['id']);
+        $dataBefore = $this->post->getSinglePost($id);
+        $validator->checkDifference($data, $dataBefore);
+        $validator->validate($data);
+        if($validator->getValidity()){
+            try{
+                $categoryIdBeforeUpdate = $this->post->getSinglePost($_REQUEST['id'])['category_id'];
+                $this->post->updatePost($data, $_REQUEST['id']);
+                $postAfterUpdate = $this->post->getSinglePost($_REQUEST['id']);
+                $_SESSION['success'] = "You successfully updated this post!";
 
 
-                    //Mail za novi post
-                    $postMail = new PostMail();
-                    $postMail->sendMail($this->post, $_REQUEST['id']);
+                //Mail za novi post
+                $postMail = new PostMail();
+                $postMail->sendMail($this->post, $_REQUEST['id']);
 
-                    //Mail za novu kategoriju ukoliko je ubacena
-                    if($categoryIdBeforeUpdate != $_REQUEST['category_id']){
-                        $categoryMail = new CategoryMail();
-                        $categoryMail->sendMail($postAfterUpdate, $postAfterUpdate['category_id']);
-                    }
-                    if($this->post->getSinglePost($_REQUEST['id']))
-                    header("Content-Type: application/json");
-                    http_response_code(204);
+                //Mail za novu kategoriju ukoliko je ubacena
+                if($categoryIdBeforeUpdate != $_REQUEST['category_id']){
+                    $categoryMail = new CategoryMail();
+                    $categoryMail->sendMail($postAfterUpdate, $postAfterUpdate['category_id']);
                 }
-                catch(Exception $e){
-                    $_SESSION['error'] = "There has been updating this post, please try again later";
-                }
-            }
-            else{
-                $_SESSION['validationError'] = $validator->getErrors();
+                if($this->post->getSinglePost($_REQUEST['id']))
                 header("Content-Type: application/json");
-                http_response_code(422);
-                echo json_encode(["message" => "error"]);
+                http_response_code(204);
             }
+            catch(Exception $e){
+                $_SESSION['error'] = "There has been updating this post, please try again later";
+            }
+        }
+        else{
+            $_SESSION['validationError'] = $validator->getErrors();
+            header("Content-Type: application/json");
+            http_response_code(422);
+            echo json_encode(["message" => "error"]);
+        }
         }
     public function store(){
         $validator = new Validator();
@@ -107,7 +108,7 @@ class PostController extends ContentController{
             header("Location: " . Helper::route("/admin/posts/create"));
         }
     }
-    public function destory($id){
-        
+    public function destroy($id){
+        $this->post->deletePost($id);
     }
 }

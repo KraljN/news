@@ -53,4 +53,9 @@ class Post extends Model implements ISubscriber{
         $prepare = $this->db->prepare($query);
         return $prepare->execute([NULL, $title, $text, $category_id, date("Y-m-d H:i:s", time()), NULL]);
     }
+    public function deletePost($id){
+        $query = "DELETE FROM posts WHERE id = ?";
+        $prepare = $this->db->prepare($query);
+        $prepare->execute([$id]);
+    }
 }
