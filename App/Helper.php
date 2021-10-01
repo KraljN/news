@@ -30,7 +30,7 @@ class Helper{
         return $output;
     }
     static function routeIs($routeName){
-        return @end(explode("/", $_SERVER["REQUEST_URI"])) == $routeName ? true : false;
+        return @str_starts_with(end(explode("/", $_SERVER["REQUEST_URI"])), $routeName) ? true : false;//PHP 8 funkcija
     }
     static function asset($assetsPath){
         return Config::getConfig("ROOT_PATH") . "/Assets" . $assetsPath;
