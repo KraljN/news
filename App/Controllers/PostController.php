@@ -8,7 +8,6 @@ use App\Mail\PostMail;
 use App\Validator;
 use Exception;
 
-session_start();
 
 class PostController extends ContentController implements IDataManipulate{
     
@@ -32,7 +31,7 @@ class PostController extends ContentController implements IDataManipulate{
     }
     public function update($id){
         $validator = new Validator();
-        if ($_SERVER['REQUEST_METHOD'] == 'PUT') //Zbog toga sto ne postoji $_PUT ili $_DELETE kao npr $_GET ili $_POST sa fronta sve spajamo u $_REQUEST
+        if ($_SERVER['REQUEST_METHOD'] == 'PUT')//Zbog toga sto ne postoji $_PUT ili $_DELETE kao npr $_GET ili $_POST sa fronta sve spajamo u $_REQUEST
         {
             parse_str(file_get_contents("php://input"), $_PUT);
 
@@ -40,10 +39,12 @@ class PostController extends ContentController implements IDataManipulate{
             {
                 unset($_PUT[$key]);
 
-                $data[str_replace('amp;', '', $key)] = $value;
+                $_PUT[str_replace('amp;', '', $key)] = $value;
             }
+
             $_REQUEST = array_merge($_REQUEST, $_PUT);
         }
+        var_dump($_REQUEST);
         $data = $_REQUEST;
         unset($data['id']);
         $dataBefore = $this->post->getSinglePost($id);

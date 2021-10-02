@@ -13,10 +13,16 @@ use App\Helper;
             <?php require __DIR__ . "/../components/validation_info.php" ?>
         </div>
         <?php 
-        foreach($data["posts"] as $post){
-            include __DIR__  . "/../components/post.php";
-        }
+        if(@count($data['posts']) > 0):
+            foreach($data["posts"] as $post){
+                include __DIR__  . "/../components/post.php";
+            }
+        else:
         ?>
+            <div class="alert alert-info mt-3" role="alert">
+                 There are currently no news in this category.
+            </div>
+        <?php endif ?>
     </div>
     <div class="col-lg-4 px-5">
         <?php require __DIR__ . "/../components/category_aside.php" ?>

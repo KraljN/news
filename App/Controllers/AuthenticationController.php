@@ -5,8 +5,6 @@ use App\Helper;
 use App\Validator;
 use App\Models\User;
 
-session_start();
-
 class AuthenticationController{
 
     public function index(){

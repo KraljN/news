@@ -6,8 +6,6 @@ use App\Validator;
 use App\Helper;
 use Exception;
 
-session_start();
-
 class PostSubscribeController extends SubscribeController{
     
     public function subscribe($id)

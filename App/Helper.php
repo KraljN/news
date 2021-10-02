@@ -22,7 +22,7 @@ class Helper{
     static function isEmailSubscribed($email, $subscribers){
         $output = false;
         foreach($subscribers as $subscriber){
-            if($subscriber->email == $email){
+            if($subscriber['email'] == $email){
                 $output = true;
                 break;
             }

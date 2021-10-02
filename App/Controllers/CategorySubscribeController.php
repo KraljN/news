@@ -7,8 +7,6 @@ use App\Validator;
 use Exception;
 use App\Models\Category;
 
-session_start();
-
 class CategorySubscribeController extends SubscribeController{
 
     public function subscribe($id){

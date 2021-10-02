@@ -58,4 +58,11 @@ class Post extends Model implements ISubscriber{
         $prepare = $this->db->prepare($query);
         $prepare->execute([$id]);
     }
+    public function getNewestPost(){
+        $query = 'SELECT id, title
+        FROM posts
+        ORDER BY created_at DESC
+        LIMIT 1';
+        return $this->db->query($query)->fetch();
+    }
 }

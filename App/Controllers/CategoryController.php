@@ -3,8 +3,6 @@ namespace App\Controllers;
 
 use App\Helper;
 
-session_start();
-
 class CategoryController extends ContentController{
     public function show($id){
         $this->data["category"] = $this->category->getSingleCategory($id);

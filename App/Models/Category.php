@@ -4,11 +4,12 @@ namespace App\Models;
 use App\Interfaces\ISubscriber;
 
 class Category extends Model implements ISubscriber{
-    public function getCategories(){
+    public function getCategories($onlyFirstOne = false){
         $query = "SELECT *
-                  FROM categories";
+                  FROM categories ";
+        if($onlyFirstOne) $query .= "LIMIT 1";
         $result = $this->db->query($query);
-        return $result->fetchAll();
+        return $onlyFirstOne ? $result->fetch() : $result->fetchAll();
     }
     public function getSingleCategory($id){
         $query = "SELECT  id, category_name
@@ -24,7 +25,7 @@ class Category extends Model implements ISubscriber{
         return $this->preparedQuery($query, [$id]);
     }
     public function getSubscribers($id){
-        $query = "SELECT email 
+        $query = "SELECT email
                   FROM subscribers 
                   WHERE category_id = ?";
         return $this->preparedQuery($query, [$id]);
