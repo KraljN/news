@@ -1,5 +1,9 @@
 <?php
 
+use App\Helper;
+
+session_start();
+
 $router->setNamespace('\App\Controllers');
 $router->get("/home", "PostController@index");
 $router->get("/", "PostController@index");
@@ -16,9 +20,15 @@ $router->get("/admin/posts/edit/{id}", "PostController@edit");
 $router->delete("/admin/posts/destroy/{id}", "PostController@destroy");
 $router->put("/admin/posts/update/{id}", "PostController@update");
 $router->post("/admin/posts/store", "PostController@store");
-// $router->before('GET|POST', '/admin/.*', function() {
-//     if (!isset($_SESSION['user'])) {
-//         header('location: /login');
-//         exit();
-//     }
-// });
+$router->before('GET|POST|PUT|DELETE', '/admin/.*', function() {
+    if (!isset($_SESSION['user'])) {
+        header('location: ' . Helper::route("/login"));
+        exit();
+    }
+});
+$router->before('GET', '/admin*', function() {
+    if (!isset($_SESSION['user'])) {
+        header('location: ' . Helper::route("/login"));
+        exit();
+    }
+});
